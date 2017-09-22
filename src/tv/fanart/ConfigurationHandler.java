@@ -39,7 +39,7 @@ public class ConfigurationHandler {
 	/*
 	 * Default configuration file name
 	 */
-	private static final String CONFIG_NAME = "config.ini";
+	private static final String CONFIG_NAME = "./config.ini";
 
 	private static final String DEFAULT_FANARTTV_ACTIVITY_URL = "https://webservice.fanart.tv/v3.2/activity";
 
@@ -105,6 +105,7 @@ public class ConfigurationHandler {
 			
 			// Close the application after config creation, to allow the user to fill out the info
 			LOGGER.warn("Please fill out the configuration file, then restart the application.\n"
+					+ "The config file is located at: " + configFile.getAbsolutePath() + ".\n"
 					+ "Given a standard webhook URL, the format is as follows:\n"
 					+ "https://discordapp.com/api/webhooks/{WEBHOOK ID}/{WEBHOOK TOKEN}\n"
 					+ "Please fill these out in the config.");

@@ -164,7 +164,11 @@ public class FanartBot {
 	private static ActivityResponse executeActivityRequest() {
 		try {
 			String response = EntityUtils.toString(requestClient.execute(buildRequest()).getEntity());
-			return gson.fromJson(response, ActivityResponse.class);
+			try {
+				return gson.fromJson(response, ActivityResponse.class);
+			} catch (Exception e) {
+				LOGGER.warn("Failed to parse JSON response into GSON Object.");
+			}
 		} catch (IOException e) {
 			LOGGER.warn("Failed to get HTTP response from request URL", e);
 		}
