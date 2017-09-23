@@ -85,7 +85,8 @@ public class FanartBot {
 						// embeds
 						if (i % 10 == 0 && i > 0) {
 							LOGGER.info("More embeds than possible, sending message and creating new builder.");
-							client.send(builder.build());
+							if (!builder.isEmpty())
+								client.send(builder.build());
 							builder = new WebhookMessageBuilder();
 							// Otherwise, add the next embed
 						} else {
@@ -95,8 +96,10 @@ public class FanartBot {
 					}
 
 					LOGGER.info("Sending message to Discord.");
-					// Send the message with embeds
-					client.send(builder.build());
+					if (!builder.isEmpty()) {
+						// Send the message with embeds
+						client.send(builder.build());
+					}
 
 					// This will only happy if everything succeeded.
 					// Update the time of the last request to now
@@ -124,27 +127,22 @@ public class FanartBot {
 	 * @return A webhook based on the configuration file
 	 */
 	private static WebhookClient buildWebhookClient() {
-		return new WebhookClientBuilder(ConfigurationHandler.getWebhookId(), ConfigurationHandler.getWebhookToken()).build();
+		return new WebhookClientBuilder(Configuration.getWebhookId(), Configuration.getWebhookToken()).build();
 	}
-
-	/**
-	 * Default request generated at runtime
-	 */
-	private static final RequestBuilder DEFAULT_REQUEST_BUILDER = RequestBuilder.get().setUri(ConfigurationHandler.getFanartRequestUrl()).addParameter("api_key",
-			ConfigurationHandler.getFanartApiKey());
 
 	/**
 	 * @return HttpRequest for the next applicable time
 	 */
 	private static HttpUriRequest buildRequest() {
-		return DEFAULT_REQUEST_BUILDER.addParameter("timestamp", String.valueOf(ConfigurationHandler.getLastRequestTime())).build();
+		return RequestBuilder.get().setUri(Configuration.getFanartRequestUrl()).addParameter("api_key", Configuration.getFanartApiKey())
+				.addParameter("timestamp", String.valueOf(Configuration.getLastRequestTime())).build();
 	}
 
 	/**
 	 * Update the last request time with the time from the response
 	 */
 	private static void updateLastRequestTime(long newTime) {
-		ConfigurationHandler.setLastRequestTime(newTime);
+		Configuration.setLastRequestTime(newTime);
 	}
 
 	/**
@@ -163,12 +161,22 @@ public class FanartBot {
 	 */
 	private static ActivityResponse executeActivityRequest() {
 		try {
-			String response = EntityUtils.toString(requestClient.execute(buildRequest()).getEntity());
-			try {
-				return gson.fromJson(response, ActivityResponse.class);
-			} catch (Exception e) {
-				LOGGER.warn("Failed to parse JSON response into GSON Object.");
-			}
+			int retryCount = 0;
+			String response;
+			// Do-while retry count is less than 3 (this will send the first request, and do
+			// two subsequent retries if required)
+			do {
+				// Get the HTTP response body as a string (JSON)
+				response = EntityUtils.toString(requestClient.execute(buildRequest()).getEntity());
+
+				try {
+					// Return the Gson object
+					return gson.fromJson(response, ActivityResponse.class);
+				} catch (Exception e) {
+					LOGGER.warn("Failed to parse JSON response into GSON Object.", e);
+				}
+				retryCount++;
+			} while (retryCount < 3);
 		} catch (IOException e) {
 			LOGGER.warn("Failed to get HTTP response from request URL", e);
 		}

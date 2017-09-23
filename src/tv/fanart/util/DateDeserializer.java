@@ -28,7 +28,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import tv.fanart.ConfigurationHandler;
+import tv.fanart.Configuration;
 
 public class DateDeserializer implements JsonDeserializer<Date> {
 	private static final String[] DATE_FORMATS = {"yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss'Z'", "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'", "yyyy-MM-dd"};
@@ -38,7 +38,7 @@ public class DateDeserializer implements JsonDeserializer<Date> {
 		for (String currentDateFormat : DATE_FORMATS) {
 			try {
 				SimpleDateFormat formatter = new SimpleDateFormat(currentDateFormat);
-				formatter.setTimeZone(TimeZone.getTimeZone(ConfigurationHandler.getServerTimezone()));
+				formatter.setTimeZone(TimeZone.getTimeZone(Configuration.getServerTimezone()));
 				return formatter.parse(json.getAsString());
 			} catch (ParseException e) {}
 		}

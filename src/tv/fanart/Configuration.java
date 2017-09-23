@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,20 +31,29 @@ import org.slf4j.LoggerFactory;
  * @author Michael Haas
  *
  */
-public class ConfigurationHandler {
+public class Configuration {
 	/*
 	 * SLF4J LOGGER
 	 */
-	private final static Logger LOGGER = LoggerFactory.getLogger(ConfigurationHandler.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
 	/*
 	 * Default configuration file name
 	 */
-	private static final String CONFIG_NAME = "./config.ini";
+	private static final String CONFIG_FILE_NAME = "config.ini";
+
+	/*
+	 * Default configuration file location This is either
+	 * ~/.config/FanartDiscordBot/config.ini on Non-windows operating systems, and
+	 * %LOCALAPPDATA%\FanartDiscordBot\config.ini on Windows.
+	 */
+	private static final String CONFIG_FILE_LOCATION = SystemUtils.IS_OS_WINDOWS
+			? System.getenv("LOCALAPPDATA") + File.separator + "FanartDiscordBot" + File.separator + CONFIG_FILE_NAME
+			: System.getProperty("user.home") + File.separator + ".config" + File.separator + "FanartDiscordBot" + File.separator + CONFIG_FILE_NAME;
 
 	private static final String DEFAULT_FANARTTV_ACTIVITY_URL = "https://webservice.fanart.tv/v3.2/activity";
 
-	private static final String DEFAULT_FANARTTV_API_KEY = "0505c58883ba6c78abaed7b3a74e1ed5";
+	private static final String DEFAULT_FANARTTV_API_KEY = "dbb05fa58331b7edbd07aaa1f5c17ae1";
 
 	/*
 	 * Properties object for storing configuration info in memory
@@ -54,12 +64,12 @@ public class ConfigurationHandler {
 	 * Request URL to get updates from Fanart.TV
 	 */
 	private static String fanartActivityUrl;
-	
+
 	/*
 	 * Fanart.TV API Key to use for the activity request
 	 */
 	private static String fanartApiKey;
-	
+
 	/*
 	 * Webhook ID to use for requests
 	 */
@@ -69,12 +79,12 @@ public class ConfigurationHandler {
 	 * Webhook token to use for requests
 	 */
 	private static String webhookToken;
-	
+
 	/*
 	 * UNIX time stamp of the last time an update was run.
 	 */
 	private static long lastRequestTime;
-	
+
 	/*
 	 * Timezone string of where the Fanart.TV server is located
 	 */
@@ -82,11 +92,12 @@ public class ConfigurationHandler {
 
 	static {
 		properties = new Properties();
-		File configFile = new File(CONFIG_NAME);
+		File configFile = new File(CONFIG_FILE_LOCATION);
 		// Create a new, default config if the config doesn't exist yet.
 		if (!configFile.exists()) {
 			LOGGER.warn("No configuration file found, generating now...");
 			try {
+				configFile.mkdirs();
 				configFile.createNewFile();
 
 				// Set default values in the config
@@ -102,12 +113,11 @@ public class ConfigurationHandler {
 			} catch (IOException e) {
 				LOGGER.error("Failed to initialize configuration file.", e);
 			}
-			
-			// Close the application after config creation, to allow the user to fill out the info
-			LOGGER.warn("Please fill out the configuration file, then restart the application.\n"
-					+ "The config file is located at: " + configFile.getAbsolutePath() + ".\n"
-					+ "Given a standard webhook URL, the format is as follows:\n"
-					+ "https://discordapp.com/api/webhooks/{WEBHOOK ID}/{WEBHOOK TOKEN}\n"
+
+			// Close the application after config creation, to allow the user to fill out
+			// the info
+			LOGGER.warn("Please fill out the configuration file, then restart the application.\n" + "The config file is located at: " + configFile.getAbsolutePath() + ".\n"
+					+ "Given a standard webhook URL, the format is as follows:\n" + "https://discordapp.com/api/webhooks/{WEBHOOK ID}/{WEBHOOK TOKEN}\n"
 					+ "Please fill these out in the config.");
 			System.exit(0);
 		} else {
@@ -127,12 +137,12 @@ public class ConfigurationHandler {
 			serverTimezone = properties.getProperty("FANART_SERVER_TIMEZONE");
 		}
 	}
-	
+
 	private static void setConfigValue(String property, String value) {
 		properties.setProperty(property, value);
 
 		try {
-			properties.store(new FileOutputStream(new File(CONFIG_NAME)), null);
+			properties.store(new FileOutputStream(new File(CONFIG_FILE_LOCATION)), null);
 		} catch (IOException e) {
 			LOGGER.error("Failed to update configuration parameter: " + property + " with value " + value, e);
 		}
@@ -173,10 +183,12 @@ public class ConfigurationHandler {
 	public static long getLastRequestTime() {
 		return lastRequestTime;
 	}
-	
+
 	/**
 	 * Update the last request time in the config with the new value.
-	 * @param newTime The new update time to use
+	 * 
+	 * @param newTime
+	 *            The new update time to use
 	 */
 	public static void setLastRequestTime(long newTime) {
 		lastRequestTime = newTime;
