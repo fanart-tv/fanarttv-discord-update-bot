@@ -42,14 +42,19 @@ public class Configuration {
 	 */
 	private static final String CONFIG_FILE_NAME = "config.ini";
 
+	private static final String CONFIG_FILE_LOCATION = SystemUtils.IS_OS_WINDOWS
+			? System.getenv("LOCALAPPDATA") + File.separator + "FanartTv" + File.separator + "FanartDiscordBot" + File.separator
+			: System.getProperty("user.home") + File.separator + ".config" + File.separator + "FanartDiscordBot" + File.separator;
+
 	/*
 	 * Default configuration file location This is either
 	 * ~/.config/FanartDiscordBot/config.ini on Non-windows operating systems, and
 	 * %LOCALAPPDATA%\FanartDiscordBot\config.ini on Windows.
 	 */
-	private static final String CONFIG_FILE_LOCATION = SystemUtils.IS_OS_WINDOWS
-			? System.getenv("LOCALAPPDATA") + File.separator + "FanartDiscordBot" + File.separator + CONFIG_FILE_NAME
-			: System.getProperty("user.home") + File.separator + ".config" + File.separator + "FanartDiscordBot" + File.separator + CONFIG_FILE_NAME;
+	private static final String CONFIG_FILE_PATH = CONFIG_FILE_LOCATION + CONFIG_FILE_NAME;
+
+	private static final File CONFIG_FILE = new File(CONFIG_FILE_PATH);
+	private static final File CONFIG_PATH = new File(CONFIG_FILE_LOCATION);
 
 	private static final String DEFAULT_FANARTTV_ACTIVITY_URL = "https://webservice.fanart.tv/v3.2/activity";
 
@@ -73,12 +78,22 @@ public class Configuration {
 	/*
 	 * Webhook ID to use for requests
 	 */
-	private static long webhookId;
+	private static long activityWebhookId;
 
 	/*
 	 * Webhook token to use for requests
 	 */
-	private static String webhookToken;
+	private static String activityWebhookToken;
+
+	private static String discordAppClientSecret;
+
+	private static long discordGuildId;
+	
+	private static String microsoftTranslateKey;
+	
+	private static boolean enableUpdateBot;
+	
+	private static boolean enableTranslationBot;
 
 	/*
 	 * UNIX time stamp of the last time an update was run.
@@ -92,38 +107,49 @@ public class Configuration {
 
 	static {
 		properties = new Properties();
-		File configFile = new File(CONFIG_FILE_LOCATION);
 		// Create a new, default config if the config doesn't exist yet.
-		if (!configFile.exists()) {
+		if (!CONFIG_FILE.exists()) {
 			LOGGER.warn("No configuration file found, generating now...");
 			try {
-				configFile.mkdirs();
-				configFile.createNewFile();
+				CONFIG_PATH.mkdirs();
+				CONFIG_FILE.createNewFile();
 
 				// Set default values in the config
 				properties.setProperty("FANART_ACTIVITY_URL", DEFAULT_FANARTTV_ACTIVITY_URL);
 				properties.setProperty("FANART_API_KEY", DEFAULT_FANARTTV_API_KEY);
+
 				properties.setProperty("WEBHOOK_ID", "");
 				properties.setProperty("WEBHOOK_TOKEN", "");
+				
+				properties.setProperty("MICROSOFT_TRANSLATE_KEY", "");
+
+				properties.setProperty("DISCORD_BOT_TOKEN", "");
+
+				properties.setProperty("DISCORD_GUILD_ID", "");
+				
+				properties.setProperty("ENABLE_UPDATE_BOT", "FALSE");
+				
+				properties.setProperty("ENABLE_TRANSLATION_BOT", "TRUE");
+
 				properties.setProperty("LAST_REQUEST_TIME", String.valueOf(System.currentTimeMillis()));
-				properties.setProperty("FANART_SERVER_TIMEZONE", "CET");
+				properties.setProperty("FANART_SERVER_TIMEZONE", "GMT");
 
 				// Store all default values to the config
-				properties.store(new FileOutputStream(configFile), null);
+				properties.store(new FileOutputStream(CONFIG_FILE), null);
 			} catch (IOException e) {
 				LOGGER.error("Failed to initialize configuration file.", e);
 			}
 
 			// Close the application after config creation, to allow the user to fill out
 			// the info
-			LOGGER.warn("Please fill out the configuration file, then restart the application.\n" + "The config file is located at: " + configFile.getAbsolutePath() + ".\n"
+			LOGGER.warn("Please fill out the configuration file, then restart the application.\n" + "The config file is located at: " + CONFIG_FILE.getAbsolutePath() + ".\n"
 					+ "Given a standard webhook URL, the format is as follows:\n" + "https://discordapp.com/api/webhooks/{WEBHOOK ID}/{WEBHOOK TOKEN}\n"
 					+ "Please fill these out in the config.");
 			System.exit(0);
 		} else {
 			// Read existing config info if it exists
 			try {
-				properties.load(new FileInputStream(configFile));
+				properties.load(new FileInputStream(CONFIG_FILE));
 			} catch (IOException e) {
 				LOGGER.error("Failed to load existing config file.", e);
 			}
@@ -131,8 +157,20 @@ public class Configuration {
 			// Read existing config values
 			fanartActivityUrl = properties.getProperty("FANART_ACTIVITY_URL");
 			fanartApiKey = properties.getProperty("FANART_API_KEY");
-			webhookId = Long.valueOf(properties.getProperty("WEBHOOK_ID"));
-			webhookToken = properties.getProperty("WEBHOOK_TOKEN");
+
+			activityWebhookId = Long.valueOf(properties.getProperty("WEBHOOK_ID"));
+			activityWebhookToken = properties.getProperty("WEBHOOK_TOKEN");
+			
+			microsoftTranslateKey = properties.getProperty("MICROSOFT_TRANSLATE_KEY");
+			
+			discordAppClientSecret = properties.getProperty("DISCORD_BOT_TOKEN");
+
+			discordGuildId = Long.valueOf(properties.getProperty("DISCORD_GUILD_ID"));
+			
+			enableUpdateBot = Boolean.valueOf(properties.getProperty("ENABLE_UPDATE_BOT"));
+			
+			enableTranslationBot = Boolean.valueOf(properties.getProperty("ENABLE_TRANSLATION_BOT"));
+
 			lastRequestTime = Long.valueOf(properties.getProperty("LAST_REQUEST_TIME"));
 			serverTimezone = properties.getProperty("FANART_SERVER_TIMEZONE");
 		}
@@ -162,19 +200,16 @@ public class Configuration {
 		return fanartApiKey;
 	}
 
-	/**
-	 * 
-	 * @return The configured Webhook ID
-	 */
 	public static long getWebhookId() {
-		return webhookId;
+		return activityWebhookId;
 	}
 
-	/**
-	 * @return The configured Webhook Token
-	 */
 	public static String getWebhookToken() {
-		return webhookToken;
+		return activityWebhookToken;
+	}
+	
+	public static String getMicrosoftTranslateKey() {
+		return microsoftTranslateKey;
 	}
 
 	/**
@@ -182,6 +217,14 @@ public class Configuration {
 	 */
 	public static long getLastRequestTime() {
 		return lastRequestTime;
+	}
+
+	public static long getDiscordGuildId() {
+		return discordGuildId;
+	}
+
+	public static String getDiscordAppClientSecret() {
+		return discordAppClientSecret;
 	}
 
 	/**
@@ -200,5 +243,103 @@ public class Configuration {
 	 */
 	public static String getServerTimezone() {
 		return serverTimezone;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public static Logger getLogger() {
+		return LOGGER;
+	}
+
+	/**
+	 * @return the configFileName
+	 */
+	public static String getConfigFileName() {
+		return CONFIG_FILE_NAME;
+	}
+
+	/**
+	 * @return the configFileLocation
+	 */
+	public static String getConfigFileLocation() {
+		return CONFIG_FILE_LOCATION;
+	}
+
+	/**
+	 * @return the configFilePath
+	 */
+	public static String getConfigFilePath() {
+		return CONFIG_FILE_PATH;
+	}
+
+	/**
+	 * @return the configFile
+	 */
+	public static File getConfigFile() {
+		return CONFIG_FILE;
+	}
+
+	/**
+	 * @return the configPath
+	 */
+	public static File getConfigPath() {
+		return CONFIG_PATH;
+	}
+
+	/**
+	 * @return the defaultFanarttvActivityUrl
+	 */
+	public static String getDefaultFanarttvActivityUrl() {
+		return DEFAULT_FANARTTV_ACTIVITY_URL;
+	}
+
+	/**
+	 * @return the defaultFanarttvApiKey
+	 */
+	public static String getDefaultFanarttvApiKey() {
+		return DEFAULT_FANARTTV_API_KEY;
+	}
+
+	/**
+	 * @return the properties
+	 */
+	public static Properties getProperties() {
+		return properties;
+	}
+
+	/**
+	 * @return the fanartActivityUrl
+	 */
+	public static String getFanartActivityUrl() {
+		return fanartActivityUrl;
+	}
+
+	/**
+	 * @return the activityWebhookId
+	 */
+	public static long getActivityWebhookId() {
+		return activityWebhookId;
+	}
+
+	/**
+	 * @return the activityWebhookToken
+	 */
+	public static String getActivityWebhookToken() {
+		return activityWebhookToken;
+	}
+
+	/**
+	 * @return the enableUpdateBot
+	 */
+	public static boolean getEnableUpdateBot() {
+		return enableUpdateBot;
+	}
+
+	/**
+	 * @return the enableTranslationBot
+	 */
+	public static boolean getEnableTranslationBot() {
+		return enableTranslationBot;
 	}
 }
