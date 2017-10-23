@@ -180,7 +180,7 @@ public class Configuration {
 		properties.setProperty(property, value);
 
 		try {
-			properties.store(new FileOutputStream(new File(CONFIG_FILE_LOCATION)), null);
+			properties.store(new FileOutputStream(CONFIG_FILE), null);
 		} catch (IOException e) {
 			LOGGER.error("Failed to update configuration parameter: " + property + " with value " + value, e);
 		}
