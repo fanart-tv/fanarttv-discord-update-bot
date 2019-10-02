@@ -551,12 +551,13 @@ public class FanartBot {
 			builder.setTitle(parseMessageActionText(responseToParse), responseToParse.getImageUrl());
 
 			// Add an author field if the change is only an upload
-			if (responseToParse.getType() == ChangeType.UPLOADED)
+			if (responseToParse.getType() == ChangeType.INSTANCE.getUPLOADED())
 				builder.addField("Author", String.format("[%s](%s)", responseToParse.getUser(), responseToParse.getUserUrl()), true);
 			// Otherwise, add a moderated by field and the author field using the alt user
 			// info
 			else {
-				builder.addField(String.format("%s by", StringUtils.capitalize(ChangeType.getVerb(responseToParse.getType()))),
+				builder.addField(String.format("%s by", StringUtils.capitalize(ChangeType.INSTANCE
+						                                                               .getVerb(responseToParse.getType()))),
 						String.format("[%s](%s)", responseToParse.getUser(), responseToParse.getUserUrl()), true);
 				builder.addField("Author", String.format("[%s](%s)", responseToParse.getAltUser(), responseToParse.getAltUserUrl()), true);
 			}
@@ -575,10 +576,10 @@ public class FanartBot {
 			builder.addField(StringUtils.capitalize(ModifiedSection.getVerb(responseToParse.getModifiedSection())), objectTypeField, true);
 
 			// If the image is approved, add a vote link
-			if (responseToParse.getType() == ChangeType.APPROVED) {
+			if (responseToParse.getType() == ChangeType.INSTANCE.getAPPROVED()) {
 				builder.addField("Vote", String.format("[Like Image](%s)", generateVoteLink(responseToParse)), true);
 				builder.setImage(responseToParse.getImageUrl());
-			} else if (responseToParse.getType() == ChangeType.DECLINED) {
+			} else if (responseToParse.getType() == ChangeType.INSTANCE.getDECLINED()) {
 				builder.setDescription(responseToParse.getMessage() == null ? "" : responseToParse.getMessage());
 			}
 
@@ -618,12 +619,12 @@ public class FanartBot {
 		 */
 		private static Color getEmbedColor(ChangeResponse responseToParse) {
 			switch (responseToParse.getType()) {
-			case ChangeType.UPLOADED:
+			case ChangeType.INSTANCE.getUPLOADED():
 				return new Color(90, 230, 222);
 			// return new Color(0, 116, 217);
-			case ChangeType.APPROVED:
+			case ChangeType.INSTANCE.getAPPROVED():
 				return new Color(46, 204, 64);
-			case ChangeType.DECLINED:
+			case ChangeType.INSTANCE.getDECLINED():
 				return new Color(255, 65, 54);
 			default:
 				return null;
@@ -635,7 +636,8 @@ public class FanartBot {
 		 * @return
 		 */
 		private static String parseMessageActionText(ChangeResponse responseToParse) {
-			return String.format("An image was %s for %s", ChangeType.getVerb(responseToParse.getType()), responseToParse.getModifiedName());
+			return String.format("An image was %s for %s", ChangeType.INSTANCE
+					.getVerb(responseToParse.getType()), responseToParse.getModifiedName());
 		}
 	}
 }
