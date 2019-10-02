@@ -8,11 +8,15 @@ group = "tv.fanart"
 version = "0.0.1"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
+
+    implementation("com.squareup.retrofit2:retrofit:2.6.1")
+    implementation("net.dv8tion:JDA:4.0.0")
 }
 
 tasks.withType<KotlinCompile> {
