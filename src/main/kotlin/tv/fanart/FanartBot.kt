@@ -4,16 +4,22 @@ import kotlinx.coroutines.*
 import java.lang.Runnable
 
 
-class FanartBot {
+class FanartBot(private val configurationClient: ConfigurationClient) {
 
     private val mainJob = SupervisorJob()
     private val mainContext = Dispatchers.Main + mainJob
 
     suspend fun start() = coroutineScope {
-        // TODO Get configuration file controller instance
-
-        // TODO Spawn off update bot
-        launch(mainContext) {
+        configurationClient.updateBotConfiguration?.let { updateBotConfiguration ->
+            launch(mainContext) {
+                val updateBot = UpdateBot(updateBotConfiguration)
+                while (true) {
+                    updateBot.update(configurationClient.lastUpdate)?.let {
+                        configurationClient.lastUpdate = it
+                    }
+                    delay(updateBotConfiguration.updateDelay)
+                }
+            }
         }
 
         // TODO Spawn off translation bot

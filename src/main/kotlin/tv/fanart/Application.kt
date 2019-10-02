@@ -1,3 +1,3 @@
 package tv.fanart
 
-suspend fun main() = FanartBot().start()
+suspend fun main() = FanartBot(ConfigurationClient()).start()
