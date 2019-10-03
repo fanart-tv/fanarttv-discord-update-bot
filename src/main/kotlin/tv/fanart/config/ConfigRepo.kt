@@ -16,7 +16,12 @@ class ConfigRepo(private val configPath: Path) {
         if (Files.notExists(configPath)) {
             Files.createDirectories(configPath.parent)
         }
-        ConfigFactory.parseFile(configPath.toFile()).extract<ConfigFile>()
+        ConfigFactory.parseFile(configPath.toFile()).extract<ConfigFile>().also {
+            if (it.updates == null) {
+                println("Update bot not configured")
+            }
+            println("Translation bot not configured")
+        }
     }
 
     val updateConfig by lazy { configFile.updates }

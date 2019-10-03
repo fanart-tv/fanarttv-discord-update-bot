@@ -6,12 +6,11 @@ import tv.fanart.discord.ChangeProcessor
 
 class UpdateBot(
     private val fanartApi: FanartApi,
-    private val changeProcessor: ChangeProcessor
+    private val changeProcessor: ChangeProcessor?
 ) {
-    
+
     private fun processChanges(changes: List<ChangeResponse>) = try {
-        changeProcessor.processChanges(changes)
-        true
+        changeProcessor?.processChanges(changes)?.let { true } ?: false
     } catch (t: Throwable) {
         false
     }

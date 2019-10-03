@@ -2,13 +2,13 @@ package tv.fanart.api.model
 
 import com.google.gson.annotations.SerializedName
 
-enum class ModifiedSection {
+enum class ModifiedSection(val id: Int) {
     @SerializedName("1")
-    Series,
+    Series(1),
     @SerializedName("2")
-    Music,
+    Music(2),
     @SerializedName("3")
-    Movie,
+    Movie(3),
     @SerializedName("5")
-    Label
+    Label(5)
 }
