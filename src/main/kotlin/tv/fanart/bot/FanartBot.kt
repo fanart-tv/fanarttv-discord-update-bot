@@ -28,8 +28,9 @@ class FanartBot : KoinComponent {
             }
         }
 
-        // TODO Spawn off translation bot
-        launch(mainContext) {
+        configurationClient.translationConfig?.let {
+            launch(mainContext) {
+            }
         }
 
         Runtime.getRuntime().addShutdownHook(Thread(Runnable {
