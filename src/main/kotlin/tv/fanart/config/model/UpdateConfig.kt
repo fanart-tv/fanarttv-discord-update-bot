@@ -5,10 +5,14 @@ import java.time.ZoneId
 data class UpdateConfig(
     val lastUpdate: Long = System.currentTimeMillis(),
     val serverTimezone: ZoneId = ZoneId.of("CET"),
-    val apiKey: String = "dbb05fa58331b7edbd07aaa1f5c17ae1",
+    val apiKey: String = DEFAULT_API_KEY,
 
     val webhookId: Long,
     val webhookToken: String,
 
     val delay: Long = 30
-)
+) {
+    companion object {
+        const val DEFAULT_API_KEY = "dbb05fa58331b7edbd07aaa1f5c17ae1"
+    }
+}
