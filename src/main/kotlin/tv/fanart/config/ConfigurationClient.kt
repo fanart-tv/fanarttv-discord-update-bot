@@ -1,6 +1,6 @@
 package tv.fanart.config
 
-import tv.fanart.model.UpdateBotConfiguration
+import tv.fanart.config.model.UpdateBotConfiguration
 import java.time.ZoneId
 import java.util.*
 

@@ -2,6 +2,7 @@ package tv.fanart
 
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import tv.fanart.bot.FanartBot
 import tv.fanart.config.ConfigurationClient
 
 suspend fun main() {

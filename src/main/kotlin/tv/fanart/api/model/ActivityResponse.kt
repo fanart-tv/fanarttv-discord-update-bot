@@ -1,4 +1,4 @@
-package tv.fanart.model
+package tv.fanart.api.model
 
 data class ActivityResponse(
     val timestamp: Long?,

@@ -59,10 +59,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import net.dv8tion.jda.webhook.WebhookMessageBuilder;
-import tv.fanart.model.ActivityResponse;
-import tv.fanart.model.ChangeResponse;
-import tv.fanart.model.ChangeType;
-import tv.fanart.model.ModifiedSection;
+import tv.fanart.api.model.ActivityResponse;
+import tv.fanart.api.model.ChangeResponse;
+import tv.fanart.api.model.ChangeType;
+import tv.fanart.api.model.ModifiedSection;
 import tv.fanart.util.DateDeserializer;
 
 /**

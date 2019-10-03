@@ -1,4 +1,4 @@
-package tv.fanart
+package tv.fanart.bot
 
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent

@@ -1,4 +1,4 @@
-package tv.fanart.model
+package tv.fanart.config.model
 
 import java.time.ZoneId
 

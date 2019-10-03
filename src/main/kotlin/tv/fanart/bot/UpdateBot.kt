@@ -1,6 +1,6 @@
-package tv.fanart
+package tv.fanart.bot
 
-import tv.fanart.model.UpdateBotConfiguration
+import tv.fanart.config.model.UpdateBotConfiguration
 import java.util.*
 
 class UpdateBot(private val updateBotConfiguration: UpdateBotConfiguration) {
