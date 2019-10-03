@@ -1,4 +1,4 @@
-package tv.fanart
+package tv.fanart.config
 
 import tv.fanart.model.UpdateBotConfiguration
 import java.time.ZoneId

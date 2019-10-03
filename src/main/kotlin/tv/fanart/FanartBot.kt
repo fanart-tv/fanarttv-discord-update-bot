@@ -1,10 +1,15 @@
 package tv.fanart
 
 import kotlinx.coroutines.*
+import org.koin.core.KoinComponent
+import org.koin.core.inject
+import tv.fanart.config.ConfigurationClient
 import java.lang.Runnable
 
 
-class FanartBot(private val configurationClient: ConfigurationClient) {
+class FanartBot : KoinComponent {
+
+    private val configurationClient by inject<ConfigurationClient>()
 
     private val mainJob = SupervisorJob()
     private val mainContext = Dispatchers.Main + mainJob
