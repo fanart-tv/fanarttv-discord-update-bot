@@ -3,26 +3,27 @@ package tv.fanart.bot
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import tv.fanart.config.ConfigurationClient
+import tv.fanart.config.ConfigRepo
 import java.lang.Runnable
+import java.util.*
 
 
 class FanartBot : KoinComponent {
 
-    private val configurationClient by inject<ConfigurationClient>()
+    private val configurationClient by inject<ConfigRepo>()
 
     private val mainJob = SupervisorJob()
     private val mainContext = Dispatchers.Main + mainJob
 
     suspend fun start() = coroutineScope {
-        configurationClient.updateBotConfiguration?.let { updateBotConfiguration ->
+        configurationClient.updateConfig?.let { updateConfig ->
             launch(mainContext) {
-                val updateBot = UpdateBot(updateBotConfiguration)
+                val updateBot = UpdateBot(updateConfig)
                 while (true) {
-                    updateBot.update(configurationClient.lastUpdate)?.let {
-                        configurationClient.lastUpdate = it
+                    updateBot.update(Date(updateConfig.lastUpdate))?.let {
+                        configurationClient.updateConfig(updateConfig.copy(lastUpdate = it.time))
                     }
-                    delay(updateBotConfiguration.updateDelay)
+                    delay(updateConfig.delay)
                 }
             }
         }

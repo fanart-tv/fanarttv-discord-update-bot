@@ -18,6 +18,7 @@ dependencies {
     implementation("org.koin:koin-core:2.0.1")
 
     implementation("io.github.config4k:config4k:0.4.1")
+    implementation("com.github.ajalt:clikt:2.2.0")
 
     implementation("com.squareup.retrofit2:retrofit:2.6.1")
     implementation("com.squareup.retrofit2:converter-gson:2.6.1")
