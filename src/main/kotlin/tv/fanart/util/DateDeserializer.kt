@@ -4,20 +4,19 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
-import tv.fanart.Configuration
 import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.*
 
-class DateDeserializer : JsonDeserializer<Date> {
+class DateDeserializer(private val serverTimezone: ZoneId) : JsonDeserializer<Date> {
 
-    @Throws(JsonParseException::class)
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Date {
         for (currentDateFormat in DATE_FORMATS) {
             try {
                 val formatter = SimpleDateFormat(currentDateFormat)
-                formatter.timeZone = TimeZone.getTimeZone(Configuration.getServerTimezone())
+                formatter.timeZone = TimeZone.getTimeZone(serverTimezone)
                 return formatter.parse(json.asString)
             } catch (e: ParseException) {
             }

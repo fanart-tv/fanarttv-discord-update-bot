@@ -4,7 +4,7 @@ import java.time.ZoneId
 
 data class UpdateConfig(
     val lastUpdate: Long = System.currentTimeMillis(),
-    val serverTimezone: ZoneId = ZoneId.of("CET"),
+    val serverTimezone: String = "CET",
     val apiKey: String = DEFAULT_API_KEY,
 
     val webhookId: Long,

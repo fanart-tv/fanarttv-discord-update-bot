@@ -15,23 +15,26 @@ import retrofit2.converter.gson.GsonConverterFactory
 import tv.fanart.api.AuthInterceptor
 import tv.fanart.api.FanartApi
 import tv.fanart.bot.FanartBot
+import tv.fanart.bot.UpdateBot
 import tv.fanart.config.ConfigRepo
 import tv.fanart.config.model.UpdateConfig
+import tv.fanart.discord.ChangeMapper
 import tv.fanart.discord.DiscordWebhookClient
 import tv.fanart.util.DateDeserializer
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.ZoneId
 import java.util.*
 
 fun main(args: Array<String>) = object : CliktCommand() {
     val configPath: Path by option(
-        "c", "config",
+        "-c", "--config",
         help = "Location of config file"
     ).path(
         writable = true,
         readable = true
     ).default(
-        Paths.get(System.getenv("user.home"), ".config", "fanart-tv", "discord-bot", "config.hocon")
+        Paths.get(System.getProperty("user.home"), ".config", "fanart-tv", "discord-bot", "config.hocon")
     )
 
     override fun run() = runBlocking {
@@ -47,7 +50,14 @@ fun main(args: Array<String>) = object : CliktCommand() {
                 Retrofit.Builder()
                     .baseUrl("https://webservice.fanart.tv")
                     .client(OkHttpClient.Builder().addInterceptor(get<AuthInterceptor>()).build())
-                    .addConverterFactory(GsonConverterFactory.create(GsonBuilder().registerTypeAdapter(Date::class.java, DateDeserializer()) .create()))
+                    .addConverterFactory(
+                        GsonConverterFactory.create(
+                            GsonBuilder().registerTypeAdapter(
+                                Date::class.java,
+                                DateDeserializer(ZoneId.of(get<ConfigRepo>().updateConfig?.serverTimezone ?: "CET"))
+                            ).create()
+                        )
+                    )
                     .build()
             }
             single { get<Retrofit>().create(FanartApi::class.java) }
@@ -55,13 +65,29 @@ fun main(args: Array<String>) = object : CliktCommand() {
 
         val discordModule = module {
             single {
-                get<ConfigRepo>().updateConfig?.let { DiscordWebhookClient(WebhookClientBuilder(it.webhookId, it.webhookToken).build()) }
+                get<ConfigRepo>().updateConfig?.let {
+                    DiscordWebhookClient(
+                        WebhookClientBuilder(
+                            it.webhookId,
+                            it.webhookToken
+                        ).build()
+                    )
+                }
+            }
+            single {
+                ChangeMapper()
+            }
+        }
+
+        val botModule = module {
+            single {
+                UpdateBot(get(), get(), get())
             }
         }
 
         startKoin {
             printLogger()
-            modules(listOf(configModule, apiModule))
+            modules(listOf(configModule, apiModule, discordModule, botModule))
         }
 
         FanartBot().start()

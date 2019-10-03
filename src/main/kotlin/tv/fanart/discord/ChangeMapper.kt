@@ -38,21 +38,27 @@ class ChangeMapper {
         ActivityCard(
             title = createTitleEmbed(change.type, change.modifiedName, change.imageUrl),
             moderationMessage = change.message,
-            moderationSection = change.altUser?.let {
-                ActivityCardComponent("${change.type.name} by", change.user.linkable(change.userUrl))
-            },
+            moderationSection = if (change.type != ChangeType.Uploaded) {
+                change.altUser?.takeIf { it.isNotBlank() }.let {
+                    ActivityCardComponent("${change.type.name} by", change.user.linkable(change.userUrl))
+                }
+            } else null,
             authorSection = ActivityCardComponent(
                 "Author",
-                (change.altUser ?: change.user).linkable(change.altUserUrl ?: change.userUrl)
+                (change.altUser?.takeIf { it.isNotBlank() } ?: change.user).linkable(
+                    change.altUserUrl?.takeIf { it.isNotBlank() } ?: change.userUrl
+                )
             ),
             typeSection = ActivityCardComponent(
                 change.modifiedSection.name,
                 createSectionEmbed(change.modifiedSection, change.modifiedId, change.modifiedUrl)
             ),
-            voteSection = ActivityCardComponent(
-                "Vote",
-                createVoteEmbed(change.modifiedId, change.modifiedSection, change.modifiedUrl)
-            ),
+            voteSection = if (change.type == ChangeType.Approved) {
+                ActivityCardComponent(
+                    "Vote",
+                    createVoteEmbed(change.modifiedId, change.modifiedSection, change.modifiedUrl)
+                )
+            } else null,
             imageUrl = change.imageUrl.takeIf { change.type == ChangeType.Approved },
             embedColor = change.type.embedColor,
             timestamp = Instant.ofEpochMilli(change.added.time)

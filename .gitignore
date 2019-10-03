@@ -51,3 +51,4 @@ config.ini
 
 .idea/*
 .gradle/*
+build/*

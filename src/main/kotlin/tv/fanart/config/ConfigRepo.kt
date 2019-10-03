@@ -1,6 +1,7 @@
 package tv.fanart.config
 
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigRenderOptions
 import io.github.config4k.extract
 import io.github.config4k.toConfig
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ class ConfigRepo(private val configPath: Path) {
     private val configFile by lazy {
         if (Files.notExists(configPath)) {
             Files.createDirectories(configPath.parent)
+            Files.createFile(configPath)
         }
         ConfigFactory.parseFile(configPath.toFile()).extract<ConfigFile>().also {
             if (it.updates == null) {
@@ -30,7 +32,12 @@ class ConfigRepo(private val configPath: Path) {
 
     suspend fun updateConfig(configFile: ConfigFile) {
         withContext(Dispatchers.IO) {
-            Files.writeString(configPath, configFile.toConfig("").atKey("").root().render())
+            Files.writeString(
+                configPath,
+                configFile.toConfig("fanart").getConfig("fanart").root().render(
+                    ConfigRenderOptions.defaults().setJson(false).setOriginComments(false)
+                )
+            )
         }
     }
 

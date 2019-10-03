@@ -9,7 +9,7 @@ data class ActivityCard(
     val moderationSection: ActivityCardComponent?,
     val authorSection: ActivityCardComponent,
     val typeSection: ActivityCardComponent,
-    val voteSection: ActivityCardComponent,
+    val voteSection: ActivityCardComponent?,
     val imageUrl: String?,
     val embedColor: Color,
     val timestamp: Instant

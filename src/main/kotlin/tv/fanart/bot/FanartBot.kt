@@ -6,6 +6,7 @@ import org.koin.core.inject
 import tv.fanart.api.FanartApi
 import tv.fanart.config.ConfigRepo
 import java.lang.Runnable
+import java.util.concurrent.TimeUnit
 
 
 class FanartBot : KoinComponent {
@@ -14,7 +15,7 @@ class FanartBot : KoinComponent {
     private val updateBot by inject<UpdateBot>()
 
     private val mainJob = SupervisorJob()
-    private val mainContext = Dispatchers.Main + mainJob
+    private val mainContext = Dispatchers.Unconfined + mainJob
 
     suspend fun start() = coroutineScope {
         configurationClient.updateConfig?.let { updateConfig ->
@@ -23,7 +24,7 @@ class FanartBot : KoinComponent {
                     updateBot.update(updateConfig.lastUpdate)?.let { updateTime ->
                         configurationClient.updateConfig(updateConfig.copy(lastUpdate = updateTime))
                     }
-                    delay(updateConfig.delay)
+                    delay(TimeUnit.SECONDS.toMillis(updateConfig.delay))
                 }
             }
         }
