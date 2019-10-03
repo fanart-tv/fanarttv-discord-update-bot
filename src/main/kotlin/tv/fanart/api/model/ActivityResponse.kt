@@ -1,7 +1,10 @@
 package tv.fanart.api.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ActivityResponse(
-    val timestamp: Long?,
-    val currentTimestamp: Long?,
-    val changes: List<ChangeResponse>?
+    val timestamp: Long,
+    @SerializedName("current_timestamp")
+    val currentTimestamp: Long,
+    val changes: List<ChangeResponse>
 )
