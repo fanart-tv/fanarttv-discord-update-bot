@@ -1,16 +1,21 @@
 package tv.fanart.bot
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import tv.fanart.api.FanartApi
 import tv.fanart.api.model.ChangeResponse
-import tv.fanart.discord.ChangeProcessor
+import tv.fanart.discord.ChangeMapper
+import tv.fanart.discord.DiscordWebhookClient
 
 class UpdateBot(
     private val fanartApi: FanartApi,
-    private val changeProcessor: ChangeProcessor?
+    private val changeMapper: ChangeMapper,
+    private val webhookClient: DiscordWebhookClient?
 ) {
 
     private fun processChanges(changes: List<ChangeResponse>) = try {
-        changeProcessor?.processChanges(changes)?.let { true } ?: false
+        val mapped = changeMapper.mapChanges(changes)
+        webhookClient?.sendCards(mapped)?.let { true } ?: false
     } catch (t: Throwable) {
         false
     }
@@ -22,10 +27,12 @@ class UpdateBot(
             null
         }
         return activity?.let {
-            if (processChanges(activity.changes)) {
-                activity.currentTimestamp
-            } else {
-                null
+            withContext(Dispatchers.IO) {
+                if (processChanges(activity.changes)) {
+                    activity.currentTimestamp
+                } else {
+                    null
+                }
             }
         }
     }

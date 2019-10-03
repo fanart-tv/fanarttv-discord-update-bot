@@ -1,5 +1,6 @@
 package tv.fanart
 
+import club.minnced.discord.webhook.WebhookClientBuilder
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -16,8 +17,11 @@ import tv.fanart.api.FanartApi
 import tv.fanart.bot.FanartBot
 import tv.fanart.config.ConfigRepo
 import tv.fanart.config.model.UpdateConfig
+import tv.fanart.discord.DiscordWebhookClient
+import tv.fanart.util.DateDeserializer
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 
 fun main(args: Array<String>) = object : CliktCommand() {
     val configPath: Path by option(
@@ -43,10 +47,16 @@ fun main(args: Array<String>) = object : CliktCommand() {
                 Retrofit.Builder()
                     .baseUrl("https://webservice.fanart.tv")
                     .client(OkHttpClient.Builder().addInterceptor(get<AuthInterceptor>()).build())
-                    .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+                    .addConverterFactory(GsonConverterFactory.create(GsonBuilder().registerTypeAdapter(Date::class.java, DateDeserializer()) .create()))
                     .build()
             }
             single { get<Retrofit>().create(FanartApi::class.java) }
+        }
+
+        val discordModule = module {
+            single {
+                get<ConfigRepo>().updateConfig?.let { DiscordWebhookClient(WebhookClientBuilder(it.webhookId, it.webhookToken).build()) }
+            }
         }
 
         startKoin {

@@ -24,6 +24,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.6.1")
     
     implementation("net.dv8tion:JDA:4.0.0_50")
+    implementation("club.minnced:discord-webhooks:0.1.7")
 }
 
 tasks.withType<KotlinCompile> {

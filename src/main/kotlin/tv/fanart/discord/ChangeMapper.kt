@@ -5,13 +5,14 @@ import tv.fanart.api.model.ChangeType
 import tv.fanart.api.model.ModifiedSection
 import tv.fanart.discord.model.ActivityCard
 import tv.fanart.discord.model.ActivityCardComponent
+import java.time.Instant
 
-class ChangeProcessor {
+class ChangeMapper {
 
     private fun String.linkable(url: String) = "[$this]($url)"
 
     private fun createTitleEmbed(changeType: ChangeType, modifiedName: String, imageUrl: String) =
-        "An image was ${changeType.name.toLowerCase()} for $modifiedName".linkable(imageUrl)
+        ActivityCardComponent("An image was ${changeType.name.toLowerCase()} for $modifiedName", imageUrl)
 
     private fun createSectionEmbed(modifiedSection: ModifiedSection, modifiedId: Long, modifiedUrl: String): String {
         var embed = "Fanart".linkable(modifiedUrl)
@@ -33,29 +34,28 @@ class ChangeProcessor {
             )}"
         )
 
-    fun processChanges(changes: List<ChangeResponse>) {
-        changes.map { change ->
-            ActivityCard(
-                titleEmbed = createTitleEmbed(change.type, change.modifiedName, change.imageUrl),
-                moderationMessage = change.message,
-                moderationSection = change.altUser?.let {
-                    ActivityCardComponent("${change.type.name} by", change.user.linkable(change.userUrl))
-                },
-                authorSection = ActivityCardComponent(
-                    "Author",
-                    (change.altUser ?: change.user).linkable(change.altUserUrl ?: change.userUrl)
-                ),
-                typeSection = ActivityCardComponent(
-                    change.modifiedSection.name,
-                    createSectionEmbed(change.modifiedSection, change.modifiedId, change.modifiedUrl)
-                ),
-                voteSection = ActivityCardComponent(
-                    "Vote",
-                    createVoteEmbed(change.modifiedId, change.modifiedSection, change.modifiedUrl)
-                ),
-                imageUrl = change.imageUrl.takeIf { change.type == ChangeType.Approved },
-                embedColor = change.type.embedColor
-            )
-        }
+    fun mapChanges(changes: List<ChangeResponse>) = changes.map { change ->
+        ActivityCard(
+            title = createTitleEmbed(change.type, change.modifiedName, change.imageUrl),
+            moderationMessage = change.message,
+            moderationSection = change.altUser?.let {
+                ActivityCardComponent("${change.type.name} by", change.user.linkable(change.userUrl))
+            },
+            authorSection = ActivityCardComponent(
+                "Author",
+                (change.altUser ?: change.user).linkable(change.altUserUrl ?: change.userUrl)
+            ),
+            typeSection = ActivityCardComponent(
+                change.modifiedSection.name,
+                createSectionEmbed(change.modifiedSection, change.modifiedId, change.modifiedUrl)
+            ),
+            voteSection = ActivityCardComponent(
+                "Vote",
+                createVoteEmbed(change.modifiedId, change.modifiedSection, change.modifiedUrl)
+            ),
+            imageUrl = change.imageUrl.takeIf { change.type == ChangeType.Approved },
+            embedColor = change.type.embedColor,
+            timestamp = Instant.ofEpochMilli(change.added.time)
+        )
     }
 }
