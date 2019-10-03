@@ -20,9 +20,11 @@ class FanartBot : KoinComponent {
     suspend fun start() = coroutineScope {
         configurationClient.updateConfig?.let { updateConfig ->
             launch(mainContext) {
+                var lastUpdate = updateConfig.lastUpdate
                 while (true) {
-                    updateBot.update(updateConfig.lastUpdate)?.let { updateTime ->
+                    updateBot.update(lastUpdate)?.let { updateTime ->
                         configurationClient.updateConfig(updateConfig.copy(lastUpdate = updateTime))
+                        lastUpdate = updateTime
                     }
                     delay(TimeUnit.SECONDS.toMillis(updateConfig.delay))
                 }
