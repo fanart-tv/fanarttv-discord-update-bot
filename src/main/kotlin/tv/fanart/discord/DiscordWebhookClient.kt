@@ -40,6 +40,5 @@ class DiscordWebhookClient(
     fun sendCards(cards: List<ActivityCard>) = cards.chunked(10).forEach { requestCards ->
         val embeds = buildEmbeds(requestCards)
         webhookClient.send(embeds).join()
-        throw Exception()
     }
 }
