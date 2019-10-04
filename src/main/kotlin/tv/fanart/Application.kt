@@ -54,7 +54,7 @@ fun main(args: Array<String>) = object : CliktCommand() {
                         GsonConverterFactory.create(
                             GsonBuilder().registerTypeAdapter(
                                 Date::class.java,
-                                DateDeserializer(ZoneId.of(get<ConfigRepo>().updateConfig?.serverTimezone ?: "CET"))
+                                DateDeserializer(ZoneId.of(get<ConfigRepo>().updateConfig?.serverTimezone ?: UpdateConfig.DEFAULT_TIMEZONE))
                             ).create()
                         )
                     )

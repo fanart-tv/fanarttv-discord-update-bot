@@ -5,6 +5,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tv.fanart.api.FanartApi
 import tv.fanart.config.ConfigRepo
+import tv.fanart.config.model.UpdateConfig
 import java.lang.Runnable
 import java.util.concurrent.TimeUnit
 
@@ -19,13 +20,13 @@ class FanartBot : KoinComponent {
     suspend fun start() = coroutineScope {
         configurationClient.updateConfig?.let { updateConfig ->
             launch(mainContext) {
-                var lastUpdate = updateConfig.lastUpdate
+                var lastUpdate = updateConfig.lastUpdate ?: System.currentTimeMillis()
                 while (true) {
                     updateBot.update(lastUpdate)?.let { updateTime ->
                         configurationClient.updateConfig(updateConfig.copy(lastUpdate = updateTime))
                         lastUpdate = updateTime
                     }
-                    delay(TimeUnit.SECONDS.toMillis(updateConfig.delay))
+                    delay(TimeUnit.SECONDS.toMillis(updateConfig.delay ?: UpdateConfig.DEFAULT_DELAY))
                 }
             }
         }
