@@ -1,4 +1,4 @@
-[license]: https://img.shields.io/badge/License-GPL%20v3-blue.svg
+[license]: https://img.shields.io/badge/License-MIT-blue.svg
 [discord-invite]: https://discord.gg/r9VufRk
 
 [ ![license][] ](LICENSE.md)
