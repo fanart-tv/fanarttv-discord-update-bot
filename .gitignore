@@ -48,3 +48,7 @@ Temporary Items
 
 target/
 config.ini
+
+.idea/*
+.gradle/*
+build/*
