@@ -1,11 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm") version "1.3.50"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 group = "tv.fanart"
-version = "0.0.1"
+version = "3.0.0"
 
 repositories {
     jcenter()
@@ -22,9 +24,15 @@ dependencies {
 
     implementation("com.squareup.retrofit2:retrofit:2.6.1")
     implementation("com.squareup.retrofit2:converter-gson:2.6.1")
-    
+
     implementation("net.dv8tion:JDA:4.0.0_50")
     implementation("club.minnced:discord-webhooks:0.1.7")
+}
+
+tasks.withType<ShadowJar> {
+    manifest {
+        attributes["Main-Class"] = "tv.fanart.ApplicationKt"
+    }
 }
 
 tasks.withType<KotlinCompile> {

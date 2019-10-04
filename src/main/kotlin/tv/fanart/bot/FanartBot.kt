@@ -8,7 +8,6 @@ import tv.fanart.config.ConfigRepo
 import java.lang.Runnable
 import java.util.concurrent.TimeUnit
 
-
 class FanartBot : KoinComponent {
 
     private val configurationClient by inject<ConfigRepo>()
