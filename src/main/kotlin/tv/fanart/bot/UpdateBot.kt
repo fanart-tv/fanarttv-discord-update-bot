@@ -7,7 +7,7 @@ import tv.fanart.api.FanartApi
 import tv.fanart.api.model.ChangeResponse
 import tv.fanart.discord.ChangeMapper
 import tv.fanart.discord.DiscordWebhookClient
-import java.util.*
+import java.time.Instant
 
 class UpdateBot(
     private val fanartApi: FanartApi,
@@ -24,7 +24,7 @@ class UpdateBot(
     }
 
     suspend fun update(lastUpdate: Long): Long? {
-        logger.debug { "Retrieving changes from Fanart API since ${Date(lastUpdate)}" }
+        logger.debug { "Retrieving changes from Fanart API since ${Instant.ofEpochSecond(lastUpdate)}" }
         val activity = try {
             fanartApi.getChanges(after = lastUpdate)
         } catch (t: Throwable) {

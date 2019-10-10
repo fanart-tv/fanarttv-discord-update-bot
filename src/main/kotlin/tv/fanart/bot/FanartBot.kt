@@ -21,7 +21,7 @@ class FanartBot : KoinComponent {
         configurationClient.updateConfig?.let { updateConfig ->
             launch(mainContext) {
                 var lastUpdate = updateConfig.lastUpdate ?: System.currentTimeMillis()
-                logger.info { "Beginning update polling on an interval of ${updateConfig.delay} seconds" }
+                logger.info { "Beginning update polling on an interval of ${updateConfig.delay ?: UpdateConfig.DEFAULT_DELAY} seconds" }
                 while (true) {
                     logger.debug { "Requesting updates to post to Discord" }
                     updateBot.update(lastUpdate)?.let { updateTime ->
@@ -29,7 +29,7 @@ class FanartBot : KoinComponent {
                         configurationClient.updateConfig(updateConfig.copy(lastUpdate = updateTime))
                         lastUpdate = updateTime
                     } ?: logger.debug { "Update failed, not saving last update time" }
-                    logger.debug { "Sleeping for ${updateConfig.delay}" }
+                    logger.debug { "Sleeping for ${updateConfig.delay ?: UpdateConfig.DEFAULT_DELAY} seconds" }
                     delay(TimeUnit.SECONDS.toMillis(updateConfig.delay ?: UpdateConfig.DEFAULT_DELAY))
                 }
             }
