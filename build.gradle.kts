@@ -29,7 +29,8 @@ dependencies {
     implementation("net.dv8tion:JDA:4.0.0_50")
     implementation("club.minnced:discord-webhooks:0.1.7")
 
-    implementation("com.github.shafirov.klogging:klogging.jvm:1.2.10")
+    implementation("io.github.microutils:kotlin-logging:1.7.6")
+    implementation("org.slf4j:slf4j-simple:1.7.28")
 }
 
 tasks.withType<ShadowJar> {

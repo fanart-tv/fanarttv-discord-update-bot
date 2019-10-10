@@ -3,8 +3,6 @@ package tv.fanart.discord
 import club.minnced.discord.webhook.WebhookClient
 import club.minnced.discord.webhook.send.WebhookEmbed
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder
-import club.minnced.discord.webhook.send.WebhookMessageBuilder
-import net.dv8tion.jda.api.EmbedBuilder
 import tv.fanart.discord.model.ActivityCard
 import tv.fanart.discord.model.ActivityCardComponent
 

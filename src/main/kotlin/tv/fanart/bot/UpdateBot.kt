@@ -1,9 +1,8 @@
 package tv.fanart.bot
 
-import klogging.KLoggerHolder
-import klogging.WithLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import tv.fanart.api.FanartApi
 import tv.fanart.api.model.ChangeResponse
 import tv.fanart.discord.ChangeMapper
@@ -46,5 +45,7 @@ class UpdateBot(
         }
     }
 
-    companion object: WithLogging by KLoggerHolder()
+    companion object {
+        val logger = KotlinLogging.logger {}
+    }
 }
