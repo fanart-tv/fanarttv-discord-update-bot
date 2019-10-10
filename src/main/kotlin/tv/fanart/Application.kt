@@ -4,6 +4,7 @@ import club.minnced.discord.webhook.WebhookClientBuilder
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
@@ -37,7 +38,14 @@ fun main(args: Array<String>) = object : CliktCommand() {
         Paths.get(System.getProperty("user.home"), ".config", "fanart-tv", "discord-bot", "config.hocon")
     )
 
+    val logLevel: String by option(
+        "-l", "--logging",
+        help = "Loggin level"
+    ).choice("OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE").default("INFO")
+
     override fun run() = runBlocking {
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel)
+
         val configModule = module {
             single { ConfigRepo(configPath) }
         }
@@ -54,7 +62,11 @@ fun main(args: Array<String>) = object : CliktCommand() {
                         GsonConverterFactory.create(
                             GsonBuilder().registerTypeAdapter(
                                 Date::class.java,
-                                DateDeserializer(ZoneId.of(get<ConfigRepo>().updateConfig?.serverTimezone ?: UpdateConfig.DEFAULT_TIMEZONE))
+                                DateDeserializer(
+                                    ZoneId.of(
+                                        get<ConfigRepo>().updateConfig?.serverTimezone ?: UpdateConfig.DEFAULT_TIMEZONE
+                                    )
+                                )
                             ).create()
                         )
                     )
