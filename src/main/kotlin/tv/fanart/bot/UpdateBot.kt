@@ -36,7 +36,9 @@ class UpdateBot(
                 logger.debug { "Processing ${activity.changes.size} changes from Fanart API" }
                 if (processChanges(activity.changes)) {
                     activity.currentTimestamp.also {
-                        logger.info { "Successfully sent messages for ${activity.changes.size} updates" }
+                        if (activity.changes.isNotEmpty()) {
+                            logger.info { "Successfully sent messages for ${activity.changes.size} updates" }
+                        }
                     }
                 } else {
                     null
