@@ -6,6 +6,7 @@ import io.github.config4k.extract
 import io.github.config4k.toConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import tv.fanart.config.model.ConfigFile
 import tv.fanart.config.model.UpdateConfig
 import java.nio.file.Files
@@ -20,9 +21,9 @@ class ConfigRepo(private val configPath: Path) {
         }
         ConfigFactory.parseFile(configPath.toFile()).extract<ConfigFile>().also {
             if (it.updates == null) {
-                println("Update bot not configured")
+                logger.info { "Update bot not configured" }
             }
-            println("Translation bot not configured")
+            logger.info { "Translation bot not configured" }
         }
     }
 
@@ -42,4 +43,8 @@ class ConfigRepo(private val configPath: Path) {
     }
 
     suspend fun updateConfig(updateConfig: UpdateConfig) = updateConfig(configFile.copy(updates = updateConfig))
+
+    companion object {
+        val logger = KotlinLogging.logger { }
+    }
 }
