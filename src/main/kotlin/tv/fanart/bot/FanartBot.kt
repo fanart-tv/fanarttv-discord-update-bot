@@ -1,9 +1,10 @@
 package tv.fanart.bot
 
+import klogging.KLoggerHolder
+import klogging.WithLogging
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import tv.fanart.api.FanartApi
 import tv.fanart.config.ConfigRepo
 import tv.fanart.config.model.UpdateConfig
 import java.lang.Runnable
@@ -21,11 +22,15 @@ class FanartBot : KoinComponent {
         configurationClient.updateConfig?.let { updateConfig ->
             launch(mainContext) {
                 var lastUpdate = updateConfig.lastUpdate ?: System.currentTimeMillis()
+                logger.info { "Beginning update polling on an interval of ${updateConfig.delay} seconds" }
                 while (true) {
+                    logger.debug { "Requesting updates to post to Discord" }
                     updateBot.update(lastUpdate)?.let { updateTime ->
+                        logger.debug { "Saving new update time to config" }
                         configurationClient.updateConfig(updateConfig.copy(lastUpdate = updateTime))
                         lastUpdate = updateTime
-                    }
+                    } ?: logger.debug { "Update failed, not saving last update time" }
+                    logger.debug { "Sleeping for ${updateConfig.delay}" }
                     delay(TimeUnit.SECONDS.toMillis(updateConfig.delay ?: UpdateConfig.DEFAULT_DELAY))
                 }
             }
@@ -44,4 +49,6 @@ class FanartBot : KoinComponent {
 
         yield()
     }
+
+    companion object: WithLogging by KLoggerHolder()
 }

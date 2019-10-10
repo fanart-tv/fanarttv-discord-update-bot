@@ -11,6 +11,7 @@ version = "3.0.0"
 
 repositories {
     jcenter()
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -27,6 +28,8 @@ dependencies {
 
     implementation("net.dv8tion:JDA:4.0.0_50")
     implementation("club.minnced:discord-webhooks:0.1.7")
+
+    implementation("com.github.shafirov.klogging:klogging.jvm:1.2.10")
 }
 
 tasks.withType<ShadowJar> {
