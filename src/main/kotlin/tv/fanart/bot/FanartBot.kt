@@ -1,8 +1,7 @@
 package tv.fanart.bot
 
-import klogging.KLoggerHolder
-import klogging.WithLogging
 import kotlinx.coroutines.*
+import mu.KotlinLogging
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tv.fanart.config.ConfigRepo
@@ -50,5 +49,7 @@ class FanartBot : KoinComponent {
         yield()
     }
 
-    companion object: WithLogging by KLoggerHolder()
+    companion object {
+        val logger = KotlinLogging.logger {}
+    }
 }
