@@ -37,7 +37,9 @@ class UpdateBot(
                 if (processChanges(activity.changes)) {
                     activity.currentTimestamp.also {
                         if (activity.changes.isNotEmpty()) {
-                            logger.info { "Successfully sent messages for ${activity.changes.size} updates" }
+                            logger.info { "Successfully sent messages for ${activity.changes.size} changes" }
+                        } else {
+                            logger.debug { "Successfully processed ${activity.changes.size} changes" }
                         }
                     }
                 } else {
