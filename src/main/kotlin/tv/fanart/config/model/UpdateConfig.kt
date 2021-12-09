@@ -15,5 +15,6 @@ data class UpdateConfig(
         const val DEFAULT_TIMEZONE = "GMT"
         const val DEFAULT_API_KEY = "dbb05fa58331b7edbd07aaa1f5c17ae1"
         const val DEFAULT_DELAY = 30L
+        const val DEFAULT_API_URL = "v3.2/activity"
     }
 }
