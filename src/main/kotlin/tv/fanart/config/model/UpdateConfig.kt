@@ -4,6 +4,7 @@ data class UpdateConfig(
     val lastUpdate: Long?,
     val serverTimezone: String?,
     val apiKey: String?,
+    val apiUrl: String?,
 
     val webhookId: Long,
     val webhookToken: String,
